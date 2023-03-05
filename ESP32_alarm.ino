@@ -1,7 +1,7 @@
 //ESP32 security system (AA Alarm) with EspMQTTClient library.
 #include "EspMQTTClient.h"
 EspMQTTClient *client;
-//input &amp; output pins and values
+//input & output pins and values
 #define ALARMOUT 13 //GPIO for a relay to activate alarm buzzer.
 #define ARMEDLED 12  //GPIO for armed-indicator LED.
 //security level. Only AA (Away Arm) and D (Disarm) are used.
@@ -38,7 +38,7 @@ void setup() {
   Serial.println("ESP32 Security System started.");
   //MQTT
   String wifiMACString = WiFi.macAddress(); //WiFi MAC address
-  wifiMACString.toCharArray(&amp;CLIENTID[6], 18, 0); //"ESP32_xx:xx:xx:xx:xx:xx"
+  wifiMACString.toCharArray(&CLIENTID[6], 18, 0); //"ESP32_xx:xx:xx:xx:xx:xx"
   Serial.print("SSID: ");Serial.println(SSID);
   Serial.print("MQTT broker address: ");Serial.println(MQTTADD);
   Serial.print("MQTT clientID: ");Serial.println(CLIENTID);
@@ -47,46 +47,46 @@ void setup() {
 
 void onConnectionEstablished() {
   Serial.println("WiFi/MQTT onnection established.");
-  client-&gt;subscribe(SUBTOPIC, onMessageReceived); //set callback function
-  client-&gt;publish(PUBDEBUG, "ESP32 Security System is ready.");
+  client->subscribe(SUBTOPIC, onMessageReceived); //set callback function
+  client->publish(PUBDEBUG, "ESP32 Security System is ready.");
 }
 
-void onMessageReceived(const String&amp; msg) { // topic = mqttthing/security/setTargetState
+void onMessageReceived(const String& msg) { // topic = mqttthing/security/setTargetState
 //Serial.println(msg);
-  client-&gt;publish(PUBDEBUG, "Set TS received.");
+  client->publish(PUBDEBUG, "Set TS received.");
   if(msg.compareTo("AA")==0) { //is set AA (Away Arm)
     currentLevel = level_AA;
     //inicate with a 0.2 second beep
     digitalWrite(ALARMOUT, HIGH); delay(200); digitalWrite(ALARMOUT, LOW);
     digitalWrite(ARMEDLED, HIGH); //turn LED on
-    client-&gt;publish(PUBCURRENT,"false"); //turn off the button JIC it is on
-    client-&gt;publish(PUBCURRENT,"AA");
+    client->publish(PUBCURRENT,"false"); //turn off the button JIC it is on
+    client->publish(PUBCURRENT,"AA");
   }
   else if(msg.compareTo("D")==0){ //target state is D (Disarm)
     currentLevel = level_D;
     digitalWrite(ARMEDLED, LOW); //turn the LED off
     digitalWrite(ALARMOUT, LOW); //turn the alarm off JIC it is on
-    client-&gt;publish(PUBCURRENT,"false"); //turn the button off JIC it is on
-    client-&gt;publish(PUBCURRENT,"D");
+    client->publish(PUBCURRENT,"false"); //turn the button off JIC it is on
+    client->publish(PUBCURRENT,"D");
   }
   else if(msg.compareTo("false")==0) { //a sensor turned off the switch
     if(currentLevel == level_AA){ // if AA, alarm likely to be triggered
-      client-&gt;publish(PUBCURRENT,"AA"); //return to AA from T
+      client->publish(PUBCURRENT,"AA"); //return to AA from T
       digitalWrite(ALARMOUT, LOW); //turn the alarm off
     }
   }
   else if(msg.compareTo("true")==0) { //sensor turned on the switch
     if(currentLevel == level_AA){ //if it is armed
-      client-&gt;publish(PUBCURRENT,"T"); //trigger the security system
+      client->publish(PUBCURRENT,"T"); //trigger the security system
       digitalWrite(ALARMOUT, HIGH); //turn on the alarm buzzer
     }
     else{ //if currentLevel is level_D
       delay(500); //do nothing but just delay for 500 ms.
-      client-&gt;publish(PUBCURRENT,"false"); //turn off the button on the Home.app
+      client->publish(PUBCURRENT,"false"); //turn off the button on the Home.app
     }
   }
 }
 
 void loop() {
-  client-&gt;loop();
+  client->loop();
 }

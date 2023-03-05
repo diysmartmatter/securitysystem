@@ -70,9 +70,9 @@ void onMessageReceived(const String& msg) { // topic = mqttthing/security/setTar
     client->publish(PUBCURRENT,"D");
   }
   else if(msg.compareTo("false")==0) { //a sensor turned off the switch
-    if(currentLevel == level_AA){ // if AA, alarm likely to be triggered
+    digitalWrite(ALARMOUT, LOW); //turn the alarm off, anyway
+    if(currentLevel == level_AA){ // if AA, alarm likely to have been triggered
       client->publish(PUBCURRENT,"AA"); //return to AA from T
-      digitalWrite(ALARMOUT, LOW); //turn the alarm off
     }
   }
   else if(msg.compareTo("true")==0) { //sensor turned on the switch
@@ -81,7 +81,7 @@ void onMessageReceived(const String& msg) { // topic = mqttthing/security/setTar
       digitalWrite(ALARMOUT, HIGH); //turn on the alarm buzzer
     }
     else{ //if currentLevel is level_D
-      delay(500); //do nothing but just delay for 500 ms.
+      delay(500); //do nothing but just delay for 500 ms for sensor test
       client->publish(PUBCURRENT,"false"); //turn off the button on the Home.app
     }
   }
